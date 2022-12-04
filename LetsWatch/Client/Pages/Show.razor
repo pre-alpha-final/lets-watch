@@ -33,9 +33,16 @@
     {
         while (true)
         {
-            var watchDto = await Http.GetFromJsonAsync<WatchDto>($"/api/session/{UserSession}/{_timestamp?.UtcTicks ?? -1}");
-            Title = watchDto.Title;
-            _timestamp = watchDto.Timestamp;
+            try
+            {
+                var watchDto = await Http.GetFromJsonAsync<WatchDto>($"/api/session/{UserSession}/{_timestamp?.UtcTicks ?? -1}");
+                Title = watchDto.Title;
+                _timestamp = watchDto.Timestamp;
+            }
+            catch (Exception e)
+            {
+                await Task.Delay(1000);
+            }
         }
     }
 
@@ -43,18 +50,25 @@
     {
         while (true)
         {
-            if (_timestamp == null)
+            try
             {
-                await Task.Delay(100);
-                continue;
-            }
+                if (_timestamp == null)
+                {
+                    await Task.Delay(100);
+                    continue;
+                }
 
-            var timeDifference = (DateTimeOffset.UtcNow - _timestamp).Value;
-            Hours = timeDifference.Hours.ToString();
-            Minutes = timeDifference.Minutes.ToString();
-            Seconds = timeDifference.Seconds.ToString();
-            StateHasChanged();
-            await Task.Delay(100);
+                var timeDifference = (DateTimeOffset.UtcNow - _timestamp).Value;
+                Hours = timeDifference.Hours.ToString();
+                Minutes = timeDifference.Minutes.ToString();
+                Seconds = timeDifference.Seconds.ToString();
+                StateHasChanged();
+                await Task.Delay(100);
+            }
+            catch (Exception e)
+            {
+                await Task.Delay(1000);
+            }
         }
     }
 }
