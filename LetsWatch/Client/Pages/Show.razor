@@ -1,0 +1,60 @@
+﻿@page "/{userSession:guid}"
+@using LetsWatch.Client.Dto
+@inject HttpClient Http
+
+<PageTitle>Let's Watch</PageTitle>
+
+<div class="p-4 vh-90">
+    <div class="d-flex flex-column flex-grow-1 h-100 justify-content-center">
+        <div class="mx-auto">
+            <h3>@Title</h3>
+            <h5>@Hours:@Minutes:@Seconds</h5>
+        </div>
+    </div>
+</div>
+
+@code {
+    private DateTimeOffset? _timestamp = null;
+
+    [Parameter]
+    public Guid UserSession { get; set; }
+    public string Title { get; set; }
+    public string Hours { get; set; }
+    public string Minutes { get; set; }
+    public string Seconds { get; set; }
+
+    public Show()
+    {
+        Task.Run(Sync);
+        Task.Run(Refresh);
+    }
+
+    private async Task Sync()
+    {
+        while (true)
+        {
+            var watchDto = await Http.GetFromJsonAsync<WatchDto>($"/api/session/{UserSession}/{_timestamp?.UtcTicks ?? -1}");
+            Title = watchDto.Title;
+            _timestamp = watchDto.Timestamp;
+        }
+    }
+
+    private async Task Refresh()
+    {
+        while (true)
+        {
+            if (_timestamp == null)
+            {
+                await Task.Delay(100);
+                continue;
+            }
+
+            var timeDifference = (DateTimeOffset.UtcNow - _timestamp).Value;
+            Hours = timeDifference.Hours.ToString();
+            Minutes = timeDifference.Minutes.ToString();
+            Seconds = timeDifference.Seconds.ToString();
+            StateHasChanged();
+            await Task.Delay(100);
+        }
+    }
+}

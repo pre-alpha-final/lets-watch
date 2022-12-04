@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.ResponseCompression;
+using LetsWatch.Server.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -6,6 +6,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
+builder.Services.AddScoped<ILetsWatchService, LetsWatchService>();
 
 var app = builder.Build();
 
@@ -27,7 +28,6 @@ app.UseBlazorFrameworkFiles();
 app.UseStaticFiles();
 
 app.UseRouting();
-
 
 app.MapRazorPages();
 app.MapControllers();
