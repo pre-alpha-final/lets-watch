@@ -59,9 +59,9 @@
                 }
 
                 var timeDifference = (DateTimeOffset.UtcNow - _timestamp).Value;
-                Hours = timeDifference.Hours.ToString();
-                Minutes = timeDifference.Minutes.ToString();
-                Seconds = timeDifference.Seconds.ToString();
+                Hours = ((int)timeDifference.TotalHours).ToString("D2");
+                Minutes = timeDifference.Minutes.ToString("D2");
+                Seconds = timeDifference.Seconds.ToString("D2");
                 StateHasChanged();
                 await Task.Delay(100);
             }
